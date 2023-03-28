@@ -21,7 +21,6 @@ with open("../data/一二级汉字表.txt", "r", encoding="gbk") as f:
         valid_chars.add(c)
 f.close()
 
-
 pinyin_dict = create_pinyin_char_dict(input_file_path,valid_chars)
 print(pinyin_dict)
 
