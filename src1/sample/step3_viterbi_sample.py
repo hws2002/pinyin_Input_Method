@@ -1,13 +1,14 @@
 import json
-
+import sys
+import numpy as np
 #----------------------------------------------------------------#
 #%% set STRATEGIES
 # FDS : frequency_dict_single
 # FDF : frequency_dict_first
 FIRST_CHAR_STRATEGIES = ["FDS","FDF"]
 FIRST_CHAR_STRATEGY = FIRST_CHAR_STRATEGIES[1]
-TOP_K = 5
-LAMBDA = 0.8
+LAMBDA = 0.999999
+NUMBER_OF_ROW = 10
 ENCODING = 'gbk'
 
 COUNT_THRESHOLD = 1000
@@ -35,7 +36,12 @@ f.close()
 #%% Define functions
 def get_probability_first(char):
     if(FIRST_CHAR_STRATEGY == 'FDF'):
-        return frequency_dict_first[char] / sum(frequency_dict_first.values())
+        if char in frequency_dict_first:
+            return frequency_dict_first[char] / sum(frequency_dict_first.values())
+        else:
+            # for those characters that do not appear in the first position
+            # give them a small probability, which is the same as the probability of a character that appears 200 times
+            return FIRST_COUNT_THRESHOLD/sum(frequency_dict_first.values())
     else:
         return frequency_dict_single[char] / sum(frequency_dict_single.values())
 
@@ -54,56 +60,81 @@ def get_probability(char2, char1=None):
                 return LAMBDA*(frequency_dict[char1+char2] / SINGLE_COUNT_THRESHOLD/sum(frequency_dict_single.values())) + (1-LAMBDA)*(get_probability(char2))
 
 
-# get_probability : get the probability of char2 given char1
-def pinyin2Chinese(char_list1, char_list2):
-    res = ''
-    max_prob = 0
-    for char1 in char_list1:
-        for char2 in char_list2:
-            if max_prob < get_probability(char2, char1):
-                max_prob = get_probability(char2, char1)
-                res = char1 + char2
-    try:
-        len(res) == 2
-    except Exception:
-        raise Exception(f"Cannot find a word for pinyin")    
-    return res
 
 def transform2sentence(pinyin_line):
     pinyins = pinyin_line.split(' ')
     sentence = ''
+    RESULT = np.empty((10,1))
+    PROB = np.empty((10,1))
+    TRACE = np.empty((10,1))
+    MAX_PROB = 0
     # TODO : Viterbi algorithm
-    # May include TOP_K and FIRST_CHAR_STRATEGY
-    # handle first char
-    available_char = pinyin_dict_sorted[pinyins[0]]
-    char_list = []
-    for char in available_char:
-        if char in frequency_dict_first:
-            char_list.append(char)
+    
+    # handle first character
+    char_list1 = pinyin_dict_sorted[pinyins[0]]
+    
+    for i,char in enumerate(char_list1):
+        print(char,"{:.7f}".format(get_probability_first(char)))
+        MAX_PROB = max(MAX_PROB, get_probability_first(char))
+    RESULT = np.append(RESULT, np.array(char_list1).reshape(-1, 1), axis=1)
+    # print(RESULT)
     for i in range(len(pinyins)-1):
         try : 
-            char_list1 = [] 
-            available_char1 = pinyin_dict_sorted[pinyins[i]]
-            for char in available_char1:
-                if char in frequency_dict_single:
-                    char_list1.append(char)
-            char_list2 = []
-            available_char2 = pinyin_dict_sorted[pinyins[i+1]]
-            for char in available_char2:
-                if char in frequency_dict_single:
-                    char_list2.append(char)
+            char_list2 = pinyin_dict_sorted[pinyins[i+1]]
         except KeyError:
             # 不会发生
             raise Exception(f"Pinyin '{pinyins[i]}' not found in dictionary.")
-        print(char_list1)
-        sentence += pinyin2Chinese(char_list1,char_list2)
-        print(sentence)
+        print(char_list2)
+        
+        # get_probability : get the probability of char2 given char1        
+        max_probabilities = []
+        best_char = []
+        max_prob_stage_i = 0
+        col1 = PROB[:,i]
+        max_prob_trace = 0
+        
+        for char2 in char_list2:
+            prob = 0
+            index = -1
+            char = ''
+            for i,char1 in enumerate(char_list1):
+                if prob < get_probability(char2, char1):
+                    prob = get_probability(char2, char1)
+                    index = i
+            try :
+                index != -1
+            except Exception:
+                # 不会发生
+                raise Exception(f"Cannot find a best character for '{char2}'. Something went wrong in get_probability().")
+            
+            best_char.append(index)
+            max_probabilities.append(prob)
+            if prob*col1[index] > max_prob_stage_i:
+                max_prob_stage_i = prob*col1[index]
+            # debug
+            
+        # Revise TRACE, PROB and MAX_PROB
+        arr1 = np.array(best_char)
+        arr2 = np.array(max_probabilities)
+        arr1 = np.pad(arr1,(0,NUMBER_OF_ROW-len(arr1)),mode = 'constant', constant_values = -1)
+        arr2 = np.pad(arr2,(0,NUMBER_OF_ROW-len(arr2)),mode = 'constant', constant_values = -1)
+        
+        TRACE = np.append(TRACE, arr1.reshape(-1, 1), axis=1)
+        PROB = np.append(PROB, arr2.reshape(-1, 1), axis=1)
+        MAX_PROB = max_prob_stage_i
+
+    print(TRACE)
+    # 回溯
+    # TODO : backtrace
+    
+    
+    print(sentence)
     return sentence
 
 #----------------------------------------------------------------#
 # %% Main
 # read input file
-with open('../../输入输出格式样例/input.txt','r',encoding = ENCODING) as f:
+with open('../../输入输出格式样例/input copy.txt','r',encoding = ENCODING) as f:
     input_text = f.read().splitlines()
 f.close()
 
