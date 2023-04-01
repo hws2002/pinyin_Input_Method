@@ -7,7 +7,7 @@ import numpy as np
 # FDF : frequency_dict_first
 FIRST_CHAR_STRATEGIES = ["FDS","FDF"]
 FIRST_CHAR_STRATEGY = FIRST_CHAR_STRATEGIES[1]
-LAMBDA = 0.999999
+LAMBDA = 0.99999
 NUMBER_OF_ROW = 10
 ENCODING = 'gbk'
 
@@ -64,21 +64,32 @@ def get_probability(char2, char1=None):
 def transform2sentence(pinyin_line):
     pinyins = pinyin_line.split(' ')
     sentence = ''
-    RESULT = np.empty((10,1))
-    PROB = np.empty((10,1))
-    TRACE = np.empty((10,1))
+    PROB = np.empty((10,0), dtype=float)
+    TRACE = np.empty((10,0), dtype=int)
     MAX_PROB = 0
+    tracer = -1
+    # FOR DEBUGGING
+    CHARACTERS = np.empty((10,0), dtype= str)
+    
     # TODO : Viterbi algorithm
     
     # handle first character
     char_list1 = pinyin_dict_sorted[pinyins[0]]
-    
+    first_probabilities = []
     for i,char in enumerate(char_list1):
-        print(char,"{:.7f}".format(get_probability_first(char)))
+        # print(char,"{:.7f}".format(get_probability_first(char)))
+        first_probabilities.append(-np.log(get_probability_first(char)))
         MAX_PROB = max(MAX_PROB, get_probability_first(char))
-    RESULT = np.append(RESULT, np.array(char_list1).reshape(-1, 1), axis=1)
-    # print(RESULT)
+    arr = np.array(first_probabilities)
+    arr = np.pad(arr,(0,NUMBER_OF_ROW-len(arr)),mode = 'constant', constant_values = -1)
+    PROB = np.append(PROB, arr.reshape(-1, 1), axis=1)
+    print("first PROB", PROB) #清
+    MAX_PROB = -np.log(MAX_PROB)
+    print("first MAX_PROB", MAX_PROB)
+    
+    # Viterbi
     for i in range(len(pinyins)-1):
+        char_list1 = pinyin_dict_sorted[pinyins[i]]
         try : 
             char_list2 = pinyin_dict_sorted[pinyins[i+1]]
         except KeyError:
@@ -86,47 +97,61 @@ def transform2sentence(pinyin_line):
             raise Exception(f"Pinyin '{pinyins[i]}' not found in dictionary.")
         print(char_list2)
         
+        # FOR DEBUGGING
+        arr_char = np.array(char_list1)
+        arr_char = np.pad(arr_char,(0,NUMBER_OF_ROW-len(arr_char)),mode = 'constant', constant_values = '')
+        CHARACTERS = np.append(CHARACTERS, arr_char.reshape(-1, 1), axis=1)
+        
         # get_probability : get the probability of char2 given char1        
         max_probabilities = []
-        best_char = []
-        max_prob_stage_i = 0
-        col1 = PROB[:,i]
-        max_prob_trace = 0
-        
-        for char2 in char_list2:
+        best_char_index = []
+        previous_probs = PROB[:,i]
+        MAX_PROB = sys.maxsize
+        for j,char2 in enumerate(char_list2):
             prob = 0
             index = -1
-            char = ''
             for i,char1 in enumerate(char_list1):
                 if prob < get_probability(char2, char1):
                     prob = get_probability(char2, char1)
                     index = i
-            try :
-                index != -1
-            except Exception:
-                # 不会发生
-                raise Exception(f"Cannot find a best character for '{char2}'. Something went wrong in get_probability().")
+            # try :
+            #     index != -1
+            # except Exception:
+            #     # 不会发生
+            #     raise Exception(f"Cannot find a best character for '{char2}'. Something went wrong in get_probability().")
             
-            best_char.append(index)
-            max_probabilities.append(prob)
-            if prob*col1[index] > max_prob_stage_i:
-                max_prob_stage_i = prob*col1[index]
-            # debug
-            
+            best_char_index.append(index)
+            max_probabilities.append(previous_probs[index]-np.log(prob))
+            if (MAX_PROB > max_probabilities[j]):
+                MAX_PROB = max_probabilities[j]
+                tracer = j
+        print(char_list1)
+        print(char_list1[tracer])            
         # Revise TRACE, PROB and MAX_PROB
-        arr1 = np.array(best_char)
+        arr1 = np.array(best_char_index)
         arr2 = np.array(max_probabilities)
         arr1 = np.pad(arr1,(0,NUMBER_OF_ROW-len(arr1)),mode = 'constant', constant_values = -1)
         arr2 = np.pad(arr2,(0,NUMBER_OF_ROW-len(arr2)),mode = 'constant', constant_values = -1)
         
         TRACE = np.append(TRACE, arr1.reshape(-1, 1), axis=1)
         PROB = np.append(PROB, arr2.reshape(-1, 1), axis=1)
-        MAX_PROB = max_prob_stage_i
 
+    # FOR DEBUGGING
+    arr_char = np.array(pinyin_dict_sorted[pinyins[len(pinyins)-1]])
+    arr_char = np.pad(arr_char,(0,NUMBER_OF_ROW-len(arr_char)),mode = 'constant', constant_values = '')
+    CHARACTERS = np.append(CHARACTERS, arr_char.reshape(-1, 1), axis=1)
+    print(CHARACTERS)
+
+    print(PROB)
     print(TRACE)
+    print(tracer)
+    
+    print(pinyin_dict_sorted[pinyins[len(pinyins)-1]][tracer])
     # 回溯
     # TODO : backtrace
     
+    # for i in range(len(pinyins)-1):
+    #     sentence += pinyin_dict_sorted[pinyins[len(pinyins)-i-1]][tracer]
     
     print(sentence)
     return sentence
@@ -137,6 +162,8 @@ def transform2sentence(pinyin_line):
 with open('../../输入输出格式样例/input copy.txt','r',encoding = ENCODING) as f:
     input_text = f.read().splitlines()
 f.close()
+# FOR DEBUGGING
+print(get_probability('系','机') > get_probability('系','记'))
 
 # transform into Chinese sentences and Compare with the original text
 with open('../../输入输出格式样例/output_sample.txt','w',encoding = ENCODING) as f:
