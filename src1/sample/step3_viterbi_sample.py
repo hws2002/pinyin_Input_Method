@@ -15,7 +15,7 @@ COUNT_THRESHOLD = 1000
 SINGLE_COUNT_THRESHOLD = 500
 FIRST_COUNT_THRESHOLD = 200
 
-#%%% Open dictionaries
+#%% Open dictionaries
 with open('../../data/pinyin_dict_sorted.json', 'r', encoding = ENCODING) as f:
     pinyin_dict_sorted = json.load(f)
 f.close()
@@ -62,8 +62,8 @@ def get_probability(char2, char1=None):
 
 
 def transform2sentence(pinyin_line):
+    print("pinyin_line : ", pinyin_line," starts here---------------------------------")
     pinyins = pinyin_line.split(' ')
-    sentence = ''
     PROB = np.empty((10,0), dtype=float)
     TRACE = np.empty((10,0), dtype=int)
     MAX_PROB = 0
@@ -83,9 +83,7 @@ def transform2sentence(pinyin_line):
     arr = np.array(first_probabilities)
     arr = np.pad(arr,(0,NUMBER_OF_ROW-len(arr)),mode = 'constant', constant_values = -1)
     PROB = np.append(PROB, arr.reshape(-1, 1), axis=1)
-    print("first PROB", PROB) #清
     MAX_PROB = -np.log(MAX_PROB)
-    print("first MAX_PROB", MAX_PROB)
     
     # Viterbi
     for i in range(len(pinyins)-1):
@@ -125,8 +123,8 @@ def transform2sentence(pinyin_line):
             if (MAX_PROB > max_probabilities[j]):
                 MAX_PROB = max_probabilities[j]
                 tracer = j
-        print(char_list1)
-        print(char_list1[tracer])            
+        print(char_list2)
+        print(char_list2[tracer])            
         # Revise TRACE, PROB and MAX_PROB
         arr1 = np.array(best_char_index)
         arr2 = np.array(max_probabilities)
@@ -144,22 +142,22 @@ def transform2sentence(pinyin_line):
 
     print(PROB)
     print(TRACE)
-    print(tracer)
-    
-    print(pinyin_dict_sorted[pinyins[len(pinyins)-1]][tracer])
+    print(MAX_PROB)
     # 回溯
     # TODO : backtrace
-    
-    # for i in range(len(pinyins)-1):
-    #     sentence += pinyin_dict_sorted[pinyins[len(pinyins)-i-1]][tracer]
-    
+    sentence = ''
+    for i in range(len(pinyins)-1):
+        sentence += pinyin_dict_sorted[pinyins[len(pinyins)-i-1]][tracer]
+        tracer = TRACE[tracer][len(pinyins)-i-2]
+    sentence += pinyin_dict_sorted[pinyins[0]][tracer]
+    sentence = sentence[::-1]
     print(sentence)
     return sentence
 
 #----------------------------------------------------------------#
 # %% Main
 # read input file
-with open('../../输入输出格式样例/input copy.txt','r',encoding = ENCODING) as f:
+with open('../../输入输出格式样例/input.txt','r',encoding = ENCODING) as f:
     input_text = f.read().splitlines()
 f.close()
 # FOR DEBUGGING

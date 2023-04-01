@@ -4,10 +4,8 @@ import json
 import time
 #-------------------------------------------------------------#
 
-COUNT_THRESHOLD = 1000
-SINGLE_COUNT_THRESHOLD = 500
-FIRST_COUNT_THRESHOLD = 200
-ENCODING = 'gbk'
+INPUT_ENCODING = 'gbk'
+OUTPUT_ENCODING = 'UTF-8'
 CORPORA = "../../语料库"
 
 corpora = [
@@ -27,27 +25,18 @@ chinese_character = re.compile('[\u4e00-\u9fff]')
 punctuation_mark = {',', '，', '。', '、', '！', '？', '“', '”', '；','：','"',' '}
 
 #-------------------------------------------------------------#
-
-# TODO : Make "frequency_dict"
-# TODO : Make "frequency_dict_first"
 # Any character following after '.' ',' '，', '。' '、' '！' '？' '“' '”' '；'is a first character
-# TODO : Make "frequency_dict_single"
 
 draft_dict = {}
 draft_dict_first = {}
 draft_dict_single = {}
 
-frequency_dict = {}
-frequency_dict_first = {}
-frequency_dict_single = {}
-
-
 for corpus in corpora:
     filename = os.path.basename(corpus)
     start_time = time.time()
     print(f"pre processing {filename}...")
-    with open(f'{CORPORA}/sina_news_gbk/cleaned_data/{filename}','w',encoding=ENCODING) as f1:
-        with open(corpus, 'r', encoding=ENCODING) as f2:
+    with open(f'{CORPORA}/sina_news_gbk/cleaned_data/{filename}','w',encoding=INPUT_ENCODING) as f1:
+        with open(corpus, 'r', encoding=INPUT_ENCODING) as f2:
             for line in f2:
                 line = line.strip()
                 chinese_text = ''.join(chinese_pattern.findall(line))
@@ -74,38 +63,18 @@ for corpus in corpora:
         f1.close()
     end_time = time.time()
     print(f"pre processing {filename} done! Time cost: {end_time-start_time:.2f}s")
-
-
-for key in draft_dict:
-    if draft_dict[key]>=COUNT_THRESHOLD:
-        frequency_dict[key] = draft_dict[key]
-
-frequency_dict = dict(sorted(frequency_dict.items(), key=lambda x: x[1], reverse=True))
-
-for key in draft_dict_first:
-    if draft_dict_first[key]>=FIRST_COUNT_THRESHOLD:
-        frequency_dict_first[key] = draft_dict_first[key]
-
-frequency_dict_first = dict(sorted(frequency_dict_first.items(), key=lambda x: x[1], reverse=True))
-
-for key in draft_dict_single:
-    if draft_dict_single[key]>=SINGLE_COUNT_THRESHOLD:
-        frequency_dict_single[key] = draft_dict_single[key]
-
-frequency_dict_single = dict(sorted(frequency_dict_single.items(), key=lambda x: x[1], reverse=True))
-
 # store frequency_dict_first as json file
 
-with open("../data/frequency_dict.json", 'w', encoding=ENCODING) as f:
-    json.dump(frequency_dict, f, ensure_ascii=False, indent=4)
+with open("../data/draft_dict.json", 'w', encoding=OUTPUT_ENCODING) as f:
+    json.dump(draft_dict, f, ensure_ascii=False, indent=4)
 f.close()
 
-with open("../data/frequency_dict_first.json", 'w', encoding=ENCODING) as f:
-    json.dump(frequency_dict_first, f, ensure_ascii=False, indent=4)
+with open("../data/draft_dict_first.json", 'w', encoding=OUTPUT_ENCODING) as f:
+    json.dump(draft_dict_first, f, ensure_ascii=False, indent=4)
 f.close()
 
-with open("../data/frequency_dict_single.json", 'w', encoding=ENCODING) as f:
-    json.dump(frequency_dict_single, f, ensure_ascii=False, indent=4)
+with open("../data/draft_dict_single.json", 'w', encoding=OUTPUT_ENCODING) as f:
+    json.dump(draft_dict_single, f, ensure_ascii=False, indent=4)
 f.close()
 
-print("Pre Processing Done!")
+print("Pre Processing1: 'Making Draft Dictionary' Done!")

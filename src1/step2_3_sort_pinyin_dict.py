@@ -1,7 +1,6 @@
 import json
 
 ENCODING = 'gbk'
-TOP_K = 10
 
 #%% load data
 with open('../data/pinyin_dict.json', 'r', encoding = ENCODING) as f:
@@ -15,7 +14,7 @@ f.close()
 
 # %%
 PINYIN_TABLE = {}
-# sort out & sort chinese characteres in TOP_K
+# sort out & sort 
 for pinyin in pinyin_dict:
     available_chars = pinyin_dict[pinyin]
     SORTED_OUT_CHARS = []
@@ -24,7 +23,6 @@ for pinyin in pinyin_dict:
             SORTED_OUT_CHARS.append(char)
     PINYIN_TABLE[pinyin] = SORTED_OUT_CHARS
     PINYIN_TABLE[pinyin].sort(key=lambda x: frequency_dict_single[x], reverse=True)
-    PINYIN_TABLE[pinyin] = PINYIN_TABLE[pinyin][:TOP_K]
 
 for pinyin in PINYIN_TABLE:
     print(pinyin, PINYIN_TABLE[pinyin])
