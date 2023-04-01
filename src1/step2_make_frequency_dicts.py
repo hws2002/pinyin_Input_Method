@@ -1,6 +1,7 @@
 import re
 import os
 import json
+import time
 #-------------------------------------------------------------#
 
 COUNT_THRESHOLD = 1000
@@ -35,14 +36,15 @@ punctuation_mark = {',', '，', '。', '、', '！', '？', '“', '”', '；',
 draft_dict = {}
 draft_dict_first = {}
 draft_dict_single = {}
-frequency_dict = {}
 
+frequency_dict = {}
 frequency_dict_first = {}
 frequency_dict_single = {}
 
 
 for corpus in corpora:
     filename = os.path.basename(corpus)
+    start_time = time.time()
     print(f"pre processing {filename}...")
     with open(f'{CORPORA}/sina_news_gbk/cleaned_data/{filename}','w',encoding=ENCODING) as f1:
         with open(corpus, 'r', encoding=ENCODING) as f2:
@@ -70,20 +72,28 @@ for corpus in corpora:
                 f1.write('\n')
             f2.close()
         f1.close()
+    end_time = time.time()
+    print(f"pre processing {filename} done! Time cost: {end_time-start_time:.2f}s")
 
 
 for key in draft_dict:
     if draft_dict[key]>=COUNT_THRESHOLD:
         frequency_dict[key] = draft_dict[key]
 
+frequency_dict = dict(sorted(frequency_dict.items(), key=lambda x: x[1], reverse=True))
+
 for key in draft_dict_first:
     if draft_dict_first[key]>=FIRST_COUNT_THRESHOLD:
         frequency_dict_first[key] = draft_dict_first[key]
 
+frequency_dict_first = dict(sorted(frequency_dict_first.items(), key=lambda x: x[1], reverse=True))
+
 for key in draft_dict_single:
     if draft_dict_single[key]>=SINGLE_COUNT_THRESHOLD:
         frequency_dict_single[key] = draft_dict_single[key]
-        
+
+frequency_dict_single = dict(sorted(frequency_dict_single.items(), key=lambda x: x[1], reverse=True))
+
 # store frequency_dict_first as json file
 
 with open("../data/frequency_dict.json", 'w', encoding=ENCODING) as f:
