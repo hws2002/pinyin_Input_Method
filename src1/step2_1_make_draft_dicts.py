@@ -20,7 +20,7 @@ corpora = [
     CORPORA + "/sina_news_gbk/2016-11.txt",
 ]
 
-chinese_pattern = re.compile('[\u4e00-\u9fff]|[.,，。、！？“”；：""]|\d+')
+chinese_pattern = re.compile('[\u4e00-\u9fff]|[.,，。、！？“”；：""()（）]|\d+')
 chinese_character = re.compile('[\u4e00-\u9fff]')
 punctuation_mark = {',', '，', '。', '、', '！', '？', '“', '”', '；','：','"',' '}
 
@@ -62,7 +62,7 @@ for corpus in corpora:
             f2.close()
         f1.close()
     end_time = time.time()
-    print(f"pre processing {filename} done! Time cost: {end_time-start_time:.2f}s")
+    print(f"Pre processing {filename} done! Time cost: {end_time-start_time:.2f}s")
 # store frequency_dict_first as json file
 
 with open("../data/draft_dict.json", 'w', encoding=OUTPUT_ENCODING) as f:

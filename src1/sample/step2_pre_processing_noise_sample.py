@@ -6,7 +6,7 @@ import json
 SINGLE_COUNT_THRESHOLD = 0
 FIRST_COUNT_THRESHOLD = 0
 corpora = [
-    "../../语料库/sina_news_gbk/sample/2016-02 sample.txt",
+    "../../../语料库/sina_news_gbk/sample/2016-02 sample.txt",
 ]
 
 chinese_pattern = re.compile('[\u4e00-\u9fff]|[.,，。、！？“”；：""]|\d+')
@@ -26,7 +26,7 @@ frequency_dict_single = {}
 for corpus in corpora:
     filename = os.path.basename(corpus)
     print(f"pre processing {filename}...")
-    with open(f'../../语料库/sina_news_gbk/cleaned_data/sample/{filename}','w',encoding='utf-8') as f1:
+    with open(f'../../../语料库/sina_news_gbk/cleaned_data/sample/{filename}','w',encoding='utf-8') as f1:
         with open(corpus, 'r', encoding='utf-8') as f2:
             for line in f2:
                 line = line.strip()
@@ -56,10 +56,10 @@ for key in draft_dict_single:
         frequency_dict_single[key] = draft_dict_single[key]
         
 # store frequency_dict_first as json file
-with open("../data/sample/frequency_dict_first_sample.json", 'w', encoding='utf-8') as f:
+with open("../../data/sample/frequency_dict_first_sample.json", 'w', encoding='utf-8') as f:
     json.dump(frequency_dict_first, f, ensure_ascii=False, indent=4)
 f.close()
 
-with open("../data/sample/frequency_dict_single_sample.json", 'w', encoding='utf-8') as f:
+with open("../../data/sample/frequency_dict_single_sample.json", 'w', encoding='utf-8') as f:
     json.dump(frequency_dict_single, f, ensure_ascii=False, indent=4)
 f.close()
