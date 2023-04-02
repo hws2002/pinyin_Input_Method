@@ -7,25 +7,25 @@ import math
 FIRST_CHAR_STRATEGIES = ["FDS","FDF"]
 FIRST_CHAR_STRATEGY = FIRST_CHAR_STRATEGIES[1]
 
-LAMBDA = 0.99999
-TOP_K = 5
+LAMBDA = 0.8
+TOP_K = 8
 ENCODING = 'gbk'
 
 #%% Open dictionaries
 
-with open('/dict/pinyin_dict.json', 'r', encoding = ENCODING) as f:
+with open('dict/pinyin_dict.json', 'r', encoding = ENCODING) as f:
     pinyin_dict = json.load(f)
 f.close()
 
-with open('/dict/frequency_dict.json', 'r', encoding = ENCODING) as f:
+with open('dict/frequency_dict.json', 'r', encoding = ENCODING) as f:
     frequency_dict = json.load(f)
 f.close()
 
-with open('/dict/frequency_dict_single.json', 'r', encoding = ENCODING) as f:
+with open('dict/frequency_dict_single.json', 'r', encoding = ENCODING) as f:
     frequency_dict_single = json.load(f)
 f.close()
 
-with open('/dict/frequency_dict_first.json', 'r', encoding = ENCODING) as f:
+with open('dict/frequency_dict_first.json', 'r', encoding = ENCODING) as f:
     frequency_dict_first = json.load(f)
 f.close()
 #----------------------------------------------------------------#

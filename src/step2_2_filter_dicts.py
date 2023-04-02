@@ -11,15 +11,15 @@ FIRST_COUNT_THRESHOLD = 3
 
 #%% Open dictionaries
 
-with open('/dict/draft_dict.json', 'r', encoding = INPUT_ENCODING) as f:
+with open('dict/draft_dict.json', 'r', encoding = INPUT_ENCODING) as f:
     draft_dict = json.load(f)
 f.close()
 
-with open('/dict/draft_dict_single.json', 'r', encoding = INPUT_ENCODING) as f:
+with open('dict/draft_dict_single.json', 'r', encoding = INPUT_ENCODING) as f:
     draft_dict_single = json.load(f)
 f.close()
 
-with open('/dict/draft_dict_first.json', 'r', encoding = INPUT_ENCODING) as f:
+with open('dict/draft_dict_first.json', 'r', encoding = INPUT_ENCODING) as f:
     draft_dict_first = json.load(f)
 f.close()
 
@@ -44,15 +44,15 @@ for key in draft_dict_single:
         frequency_dict_single[key] = draft_dict_single[key]
         
 
-with open("/dict/frequency_dict.json", 'w', encoding=OUTPUT_ENCODING) as f:
+with open("dict/frequency_dict.json", 'w', encoding=OUTPUT_ENCODING) as f:
     json.dump(frequency_dict, f, ensure_ascii=False, indent=4)
 f.close()
 
-with open("/dict/frequency_dict_first.json", 'w', encoding=OUTPUT_ENCODING) as f:
+with open("dict/frequency_dict_first.json", 'w', encoding=OUTPUT_ENCODING) as f:
     json.dump(frequency_dict_first, f, ensure_ascii=False, indent=4)
 f.close()
 
-with open("/dict/frequency_dict_single.json", 'w', encoding=OUTPUT_ENCODING) as f:
+with open("dict/frequency_dict_single.json", 'w', encoding=OUTPUT_ENCODING) as f:
     json.dump(frequency_dict_single, f, ensure_ascii=False, indent=4)
 f.close()
 

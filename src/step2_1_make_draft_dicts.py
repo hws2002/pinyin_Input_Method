@@ -61,15 +61,15 @@ for corpus in corpora:
     print(f"Pre processing {filename} done! Time cost: {end_time-start_time:.2f}s")
 # store frequency_dict_first as json file
 
-with open("/dict/draft_dict.json", 'w', encoding=OUTPUT_ENCODING) as f:
+with open("dict/draft_dict.json", 'w', encoding=OUTPUT_ENCODING) as f:
     json.dump(draft_dict, f, ensure_ascii=False, indent=4)
 f.close()
 
-with open("/dict/draft_dict_first.json", 'w', encoding=OUTPUT_ENCODING) as f:
+with open("dict/draft_dict_first.json", 'w', encoding=OUTPUT_ENCODING) as f:
     json.dump(draft_dict_first, f, ensure_ascii=False, indent=4)
 f.close()
 
-with open("/dict/draft_dict_single.json", 'w', encoding=OUTPUT_ENCODING) as f:
+with open("dict/draft_dict_single.json", 'w', encoding=OUTPUT_ENCODING) as f:
     json.dump(draft_dict_single, f, ensure_ascii=False, indent=4)
 f.close()
 

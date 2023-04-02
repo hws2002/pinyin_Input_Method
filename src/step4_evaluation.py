@@ -13,17 +13,26 @@ f1.close()
 f2.close()
 
 # %%
-def evaluation(my,std):
+def evaluation_word(my,std):
     deno = 0
     correct = 0
     for i in range(len(std)):
         deno += len(std[i])
-        for j in range(len(std[i])):
+        for j in range(len(std[i])): 
             if my[i][j] == std[i][j]:
                 correct += 1
     
-    return (correct*100.0/deno),1
+    return (correct*100.0/deno)
+def evaluation_sentence(my,std):
+    deno = 0
+    correct = 0
+    for line1, line2 in zip(my, std):
+        deno += 1
+        if line1 != line2:
+            correct+=1
+            
+    return (correct*100.0/deno)
 #%%
 
-print("字覆盖率为",evaluation(myoutput,stdoutput)[0],"% !")
-print("句覆盖率为",evaluation(myoutput,stdoutput)[1],"% !")
+print("字覆盖率为",evaluation_word(myoutput,stdoutput),"% !")
+print("句覆盖率为",evaluation_sentence(myoutput,stdoutput),"% !")

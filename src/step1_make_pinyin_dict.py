@@ -17,9 +17,9 @@ def create_pinyin_char_dict(input_path, valid_chars):
     f.close()
     return pinyin_char_dict,l_pinyin,length_
 
-input_file_path = "/dict/拼音汉字表.txt"
+input_file_path = "dict/拼音汉字表.txt"
 
-with open("/dict/一二级汉字表.txt", "r", encoding="gbk") as f:
+with open("dict/一二级汉字表.txt", "r", encoding="gbk") as f:
     characters = f.read()
     valid_chars = set()
     for c in characters:
@@ -32,11 +32,11 @@ print(l_pinyin)
 print(length_)
 
 #store as json file
-with open("/dict/pinyin_dict.json", 'w', encoding='gbk') as f:
+with open("dict/pinyin_dict.json", 'w', encoding='gbk') as f:
     json.dump(pinyin_dict, f, ensure_ascii=False, indent=4)
 f.close()    
 #store as txt file
-with open("/dict/pinyin_dict.txt", 'w', encoding='gbk') as f:
+with open("dict/pinyin_dict.txt", 'w', encoding='gbk') as f:
     for key, value in pinyin_dict.items():
         f.write(' '.join(value))
 f.close()
